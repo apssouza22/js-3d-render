@@ -32,7 +32,7 @@ class ObjectDrawer {
         let faceAlpha = .6;
         const drawPoints = true
         const drawFaces = true
-        let vertSize = 10; //Make it even: at small scales will look better
+        let vertSize = 5; //Make it even: at small scales will look better
         const ctx = this.render.ctx;
         this.faces.forEach(({color, face}) => {
             const polygon = face.map(index => vertices[index]);
@@ -62,6 +62,7 @@ class ObjectDrawer {
                 ctx.fill();
             }
         });
+        this.render.ctx.fillStyle = "#ccc";
     }
 
 
