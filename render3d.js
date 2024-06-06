@@ -14,8 +14,8 @@ class Render3D {
         this.projection = new Projection(this);
     }
 
-    setCameraPosition(x, y, z) {
-        this.camera.position = [x, y, z, 1.0];
+    setCameraZoom(depth) {
+        this.camera.position = [this.camera.position[0], this.camera.position[1], depth, 1.0];
     }
 
     loadObject3d(file) {

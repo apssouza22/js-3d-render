@@ -90,8 +90,9 @@
     });
     document.getElementById('zoom').addEventListener("input", function () {
         let depth = this.value -30;
-        render.camera.position = [0.5, 1, depth,1];
+        render.setCameraZoom(depth);
     });
+
     document.getElementById('movement').addEventListener("change", function () {
         render.object.movementFlag = this.checked;
     });

@@ -39,6 +39,12 @@ function matMulti(matrixA, matrixB) {
 }
 
 
+/**
+ * Add two matrices
+ * @param matrixA
+ * @param matrixB
+ * @returns {number[][]}
+ */
 function add(matrixA, matrixB) {
     // Check if both inputs are one-dimensional arrays
     if (!Array.isArray(matrixA[0]) && !Array.isArray(matrixB[0])) {
@@ -68,6 +74,12 @@ function add(matrixA, matrixB) {
     return result;
 }
 
+/**
+ * Subtract two matrices
+ * @param matrixA
+ * @param matrixB
+ * @returns {number[][]}
+ */
 function subtract(matrixA, matrixB) {
     // Check if both inputs are one-dimensional arrays
     if (!Array.isArray(matrixA[0]) && !Array.isArray(matrixB[0])) {
@@ -113,6 +125,11 @@ function translate(pos) {
     ];
 }
 
+/**
+ * Rotate the object around the x-axis
+ * @param a
+ * @returns {(number[]|(number|number)[])[]}
+ */
 function rotateX(a) {
     return [
         [1, 0, 0, 0],
@@ -122,6 +139,11 @@ function rotateX(a) {
     ];
 }
 
+/**
+ * Rotate the object around the y-axis
+ * @param a
+ * @returns {((number|number)[]|number[])[]}
+ */
 function rotateY(a) {
     return [
         [Math.cos(a), 0, -Math.sin(a), 0],
@@ -131,6 +153,11 @@ function rotateY(a) {
     ];
 }
 
+/**
+ * Rotate the object around the z-axis
+ * @param a
+ * @returns {((number|number)[]|(number|number)[]|number[])[]}
+ */
 function rotateZ(a) {
     return [
         [Math.cos(a), Math.sin(a), 0, 0],
@@ -140,6 +167,11 @@ function rotateZ(a) {
     ];
 }
 
+/**
+ * Scale the object to a new size [0-1]
+ * @param n
+ * @returns {((*|number)[]|(number|*)[]|number[])[]}
+ */
 function scale(n) {
     return [
         [n, 0, 0, 0],

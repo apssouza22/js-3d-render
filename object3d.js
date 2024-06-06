@@ -3,16 +3,16 @@ class Object3D {
     /**
      * Create a new 3D object
      * @param {Render3D} render
-     * @param vertices
-     * @param faces
-     * @param materials
-     * @param shouldLimitScreen
+     * @param {number[][]} vertices
+     * @param {number[][]}faces
+     * @param {number[][]}materials
      */
-    constructor(render, vertices = [], faces = [], materials = [], shouldLimitScreen = false) {
+    constructor(render, vertices = [], faces = [], materials = []) {
         this.render = render;
         this.vertices = vertices;
         this.faces = faces;
         this.materials = materials;
+        // Move the object slightly to avoid division by zero
         this.translate([0.0001, 0.0001, 0.0001]);
         this.colorFaces = this.faces.map(face => {
             let color = face[face.length - 1];
@@ -23,11 +23,18 @@ class Object3D {
         this.drawer = new ObjectDrawer(this.render, this.colorFaces, this.materials);
     }
 
+    /**
+     * Draw the object
+     */
     draw() {
-        this.screenProjection();
+        const vertices = this.screenProjectionCalc();
+        this.drawer.drawObj(vertices)
         this.move();
     }
 
+    /**
+     * Move the object
+     */
     move() {
         if (this.movementFlag) {
             this.rotateY(-(Date.now() % 0.005));
@@ -60,9 +67,9 @@ class Object3D {
     /**
      * Project the 3D object to the 2D screen
      *
-     * @returns {void}
+     * @returns {number[][]}
      */
-    screenProjection() {
+    screenProjectionCalc() {
         const cameraStateMatrix = this.render.camera.getCameraStateMatrix();
         // console.log(cameraStateMatrix)
         let vertices = matMulti(this.vertices, cameraStateMatrix);
@@ -78,12 +85,9 @@ class Object3D {
             // Remove the z and homogeneous coordinate. We only need the x and y coordinates.
             vertices[i] = vertices[i].slice(0, 2);
         }
-        this.#draw(vertices);
+        return vertices;
     }
 
-    #draw(vertices) {
-        this.drawer.drawObj(vertices)
-    }
 
     /**
      * Translate the object to a new position
@@ -93,18 +97,34 @@ class Object3D {
         this.vertices = matMulti(this.vertices, translate(pos));
     }
 
+    /**
+     * Scale the object to a new size [0-1]
+     * @param {float} scaleTo
+     */
     scale(scaleTo) {
         this.vertices = matMulti(this.vertices, scale(scaleTo));
     }
 
+    /**
+     * Rotate the object around the x-axis
+     * @param angle
+     */
     rotateX(angle) {
         this.vertices = matMulti(this.vertices, rotateX(angle));
     }
 
+    /**
+     * Rotate the object around the y-axis
+     * @param angle
+     */
     rotateY(angle) {
         this.vertices = matMulti(this.vertices, rotateY(angle));
     }
 
+    /**
+     * Rotate the object around the z-axis
+     * @param angle
+     */
     rotateZ(angle) {
         this.vertices = matMulti(this.vertices, rotateZ(angle));
     }
