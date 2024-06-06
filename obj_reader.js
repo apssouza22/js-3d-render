@@ -1,7 +1,4 @@
 class ObjectReader {
-    constructor(canvas) {
-        this.canvas = canvas;
-    }
 
     readMtlFile(file) {
         const mtlFileName = file.substring(0, file.lastIndexOf(".")) + ".mtl"

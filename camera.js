@@ -31,11 +31,10 @@ class Camera3d {
         this.angleYaw = 0;
         this.angleRoll = 0;
 
-        document.addEventListener('keydown', (event) => this.control(event));
+        document.addEventListener('keydown', (event) => this.#control(event));
     }
 
-    control(event) {
-        console.log(event.code)
+    #control(event) {
         switch (event.code) {
             case 'KeyA':
                 this.position = subtract(this.position, matMulti(this.moving_speed, this.right));

@@ -1,8 +1,7 @@
 
 class Render3D {
-    constructor(canvas, objFile) {
+    constructor(canvas) {
         this.canvas = canvas;
-        this.objFile = objFile;
         this.WIDTH = this.canvas.clientWidth;
         this.HEIGHT = this.canvas.clientHeight;
         this.HALF_WIDTH = this.WIDTH / 2;
@@ -11,23 +10,26 @@ class Render3D {
         this.canvas.height = this.HEIGHT;
         this.ctx = this.canvas.getContext('2d');
         this.mouseControl = new MouseControl(this.canvas);
-        this.createObjects();
-    }
-
-    createObjects() {
         this.camera = new Camera3d(this, new CameraPosition(0.5, 1, -10));
         this.projection = new Projection(this);
+    }
+
+    setCameraPosition(x, y, z) {
+        this.camera.position = [x, y, z, 1.0];
+    }
+
+    loadObject3d(file) {
         /** @type {Object3D} **/
-        this.object = this.getObjectFromFile(this.objFile);
-        this.object.rotateY(-Math.PI / 4);
+        this.object = this.getObjectFromFile(file);
     }
 
     /**
+     * Get the object vertices from the obj file
      * @param {string} file
      * @return {Object3D}
      */
     getObjectFromFile(file) {
-        let objectReader = new ObjectReader(canvas);
+        let objectReader = new ObjectReader();
         const objData = objectReader.readObjFile(file);
         const material = objectReader.readMtlFile(file);
         const dataHandler = new ObjDataHandler();
@@ -41,9 +43,11 @@ class Render3D {
         this.object.draw();
     }
 
-    run(fn) {
+    /**
+     * Start the render loop
+     */
+    run() {
         const loop = () => {
-            // fn();
             this.draw();
             requestAnimationFrame(loop);
         };
