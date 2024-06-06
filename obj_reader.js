@@ -1,3 +1,5 @@
+// Description: This file contains the ObjectReader class which is responsible for reading the .obj and .mtl files.
+// https://all3dp.com/2/obj-file-format-simply-explained/
 class ObjectReader {
 
     readMtlFile(file) {
