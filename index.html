@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html>
+        <head>
+        <title>ObJS</title>
+    <link rel='shortcut icon' href='favicon.ico'/>
+    <meta content='text/html; charset=utf-8' http-equiv='content-type'/>
+    <meta charset='utf-8'/>
+    <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1'/>
+    <link rel='author' href='I&ntilde;igo Valentin'/>
+    <link rel='publisher' href='I&ntilde;igo Valentin'/>
+    <meta name='description' content='Demo of ObJS - 3D viewer in pure Javascript'/>
+
+    <style>
+        body {
+            text-align: center;
+            background-color: #002200;
+        }
+
+        h1 {
+            margin-bottom: 0;
+            color: #ffffff;
+        }
+
+        h2 {
+            font-size: 110%;
+            font-style: italic;
+            margin-top: 0;
+            color: #ffffff;
+        }
+
+        section {
+            display: inline-block;
+            vertical-align: top;
+            height: 526px;
+            margin: 0;
+            border: 2px solid #000000;
+        }
+
+        section h3 {
+            height: 24px;
+            margin: 0;
+            border-bottom: 2px solid #000000;
+            background-color: #cceeff;
+        }
+
+        section#sideViews {
+            width: 120px;
+            background-color: #e0f5ff;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+        }
+
+        section#sideViews h3 {
+            border-top-left-radius: 20px;
+        }
+
+        section#sideViews h4 {
+            margin: 10px auto 0 auto;
+        }
+
+        section#sideViews canvas {
+            border: 0.1em solid #000000;
+            margin: 0 10px 10px 10px;
+            background-color: #ffffff;
+        }
+
+        section#sideViews div#details {
+            margin-top: 20px;
+        }
+
+        section#sideViews div#details span {
+            font-size: 70%;
+            display: block;
+            color: #444444;
+            font-weight: bold;
+        }
+
+        section#controls {
+            text-align: center;
+            width: 260px;
+            background-color: #e0f5ff;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        section#controls h3 {
+            border-top-right-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        section#controls table#colors {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        section#controls table#colors td {
+            border: 1px solid #000000;
+        }
+
+        section#controls table#colors td.action {
+            background-color: #aaaaaa;
+        }
+
+        section#controls table#colors td.item {
+            background-color: #bbbbbb;
+        }
+
+        section#controls table#colors td.action.item {
+            border: 0px;
+            background-color: initial;
+        }
+
+        section#controls table#colors td img {
+            width: 30px;
+            height: 30px;
+        }
+
+        section#controls table#colors td input[type="color"] {
+            width: 30px;
+            height: 30px;
+            padding: 1px;
+        }
+
+        section#controls input[type="range"] {
+            display: block;
+            width: 80%;
+            margin: auto auto 15px auto;
+            height: 20px;
+        }
+
+        canvas#ObJSView {
+            width: 500px;
+            height: 500px;
+        }
+
+        td#ObJSControl input[type="color"] {
+            width: 1.3em;
+            height: 1.3em;
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        td#ObJSControl input[type="range"] {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+<h1>
+    Js3DRender
+</h1>
+<h2>
+    3D obj format renderer in pure Javascript
+</h2>
+<section id='view'>
+    <h3>
+        View
+    </h3>
+    <canvas id="canvas" width="500" height="500">
+        Your browser does not support the HTML5 canvas tag.
+    </canvas>
+</section>
+<section id='controls'>
+    <h3>
+        Controls
+    </h3>
+    Choose a model:
+    <select id="objSelector" onChange="objs.load(this.value)">
+        <option value="objs/rainbow.obj" selected="selected">Rainbow</option>
+        <option value="objs/cube.obj">Cube</option>
+        <option value="objs/sphere.obj">Sphere</option>
+        <option value="objs/star.obj">Star</option>
+        <option value="objs/monkey.obj">Monkey</option>
+        <option value="objs/bolt.obj">Bolt</option>
+        <option value="objs/multiple.obj">Multiple Objects</option>
+    </select>
+    <table id='colors'>
+        <tr>
+            <td class='item'>
+                Elements
+            </td>
+            <td class='action'>
+                Visible
+            </td>
+        </tr>
+        <tr>
+            <td class='item'>
+                Vertices
+            </td>
+            <td>
+                <input type="checkbox" value="verts" checked onChange="objs.drawVertizes(this.checked);"/>
+            </td>
+        </tr>
+        <tr>
+            <td class='item'>
+                Edges
+            </td>
+            <td>
+                <input type="checkbox" value="edges" checked onChange="objs.drawEdges(this.checked);"/>
+            </td>
+        </tr>
+        <tr>
+            <td class='item'>
+                Faces
+            </td>
+            <td>
+                <input type="checkbox" value="faces" checked onChange="objs.drawFaces(this.checked);"/>
+            </td>
+        </tr>
+        <tr>
+            <td class='item'>
+                Movement
+            </td>
+            <td>
+                <input type="checkbox" value="backg" checked onChange="objs.drawBackground(this.checked);"/>
+            </td>
+
+        </tr>
+    </table>
+</section>
+<script src="point.js"></script>
+
+<script src="obj_reader.js"></script>
+<script src="data_preparation.js"></script>
+<script src="matrix_functions.js"></script>
+<script src="mouse_control.js"></script>
+<script src="camera.js"></script>
+<script src="object_drawer.js"></script>
+<script src="object3d.js"></script>
+<script src="projection.js"></script>
+<script src="render3d.js"></script>
+<script>
+    const render = new Render3D(
+        document.getElementById('canvas'),
+        document.getElementById('objSelector').value
+    );
+    render.run((x, y) => {
+        console.log(x, y)
+    });
+</script>
+</body>
+</html>
