@@ -13,15 +13,14 @@ class Object3D {
         this.faces = faces;
         this.materials = materials;
         // Move the object slightly to avoid division by zero
-        this.translate([0.0001, 0.0001, 0.0001]);
         this.colorFaces = this.faces.map(face => {
             let color = face[face.length - 1];
             let onlyFaces = face.slice(0, face.length - 1);
             return {color: color, face: onlyFaces}
         });
-        this.movementFlag = true;
         this.drawer = new ObjectDrawer(this.render, this.colorFaces, this.materials);
         this.objMovement = new ObjectMovementSimple(this);
+        this.objMovement.translate([0.0001, 0.0001, 0.0001]);
     }
 
     /**
@@ -30,24 +29,10 @@ class Object3D {
     draw() {
         const vertices = this.screenProjectionCalc();
         this.drawer.drawObj(vertices)
-        this.objMovement.move();
+        this.objMovement.animate();
     }
 
-    /**
-     * Move the object
-     */
-    move() {
-        // if (this.movementFlag) {
-        //     this.rotateY(-(Date.now() % 0.005));
-        //     this.rotateX(-(Date.now() % 0.005));
-        //     return
-        // }
-        // Multiplies the ratios by Math.PI to convert it to radians
-        // const roll = (this.render.mouseControl.drag.offset.x / this.render.canvas.width) * Math.PI;
-        // const pitch = (this.render.mouseControl.drag.offset.y / this.render.canvas.height) * Math.PI;
-        // this.rotateY(roll);
-        // this.rotateX(pitch);
-    }
+
 
     /**
      * Divide the vertices by the homogeneous coordinate
@@ -90,43 +75,4 @@ class Object3D {
     }
 
 
-    /**
-     * Translate the object to a new position
-     * @param pos
-     */
-    translate(pos) {
-        this.vertices = matMulti(this.vertices, translate(pos));
-    }
-
-    /**
-     * Scale the object to a new size [0-1]
-     * @param {float} scaleTo
-     */
-    scale(scaleTo) {
-        this.vertices = matMulti(this.vertices, scale(scaleTo));
-    }
-
-    /**
-     * Rotate the object around the x-axis
-     * @param angle
-     */
-    rotateX(angle) {
-        this.vertices = matMulti(this.vertices, rotateX(angle));
-    }
-
-    /**
-     * Rotate the object around the y-axis
-     * @param angle
-     */
-    rotateY(angle) {
-        this.vertices = matMulti(this.vertices, rotateY(angle));
-    }
-
-    /**
-     * Rotate the object around the z-axis
-     * @param angle
-     */
-    rotateZ(angle) {
-        this.vertices = matMulti(this.vertices, rotateZ(angle));
-    }
 }
