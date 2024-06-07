@@ -9,7 +9,6 @@ class Render3D {
         this.canvas.width = this.WIDTH;
         this.canvas.height = this.HEIGHT;
         this.ctx = this.canvas.getContext('2d');
-        this.mouseControl = new MouseControl(this.canvas);
         this.camera = new Camera3d(this, new CameraPosition(0.5, 1, -10));
         this.projection = new Projection(this);
     }

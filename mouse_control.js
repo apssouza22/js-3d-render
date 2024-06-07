@@ -1,72 +1,114 @@
+class MouseControl {
+    mouseDown = false;
+    pinch = false;
 
-class MouseControl{
-    constructor(canvas) {
-        this.canvas = canvas;
-        this.offsetScale = 0.01;
-        this.center = new Point(canvas.width / 2, canvas.height / 2);
-        this.offset = scalePoint(this.center, -1);
-
-        this.drag = {
-            start: new Point(0, 0),
-            end: new Point(0, 0),
-            offset: new Point(0, 0),
-            active: false,
-        };
-
-        this.#addPanEventListeners();
+    constructor(objectMovement) {
+        this.objectMovement = objectMovement;
+        this.canvas = objectMovement.object3D.render.canvas;
     }
 
-
-    getMouse(evt) {
-        const p = new Point(
-            (evt.offsetX - this.center.x),
-            (evt.offsetY - this.center.y),
-            0,
-            false
-        );
-        return p;
+    addEventListener() {
+        this.canvas.addEventListener('mousedown', this.#onMouseDown.bind(this));
+        this.canvas.addEventListener('mouseup', this.#onMouseUp.bind(this));
+        this.canvas.addEventListener('mousemove', this.#onMouseMove.bind(this));
+        this.canvas.addEventListener('onmouseout', this.#onMouseOut.bind(this))
+        this.canvas.addEventListener('mousewheel', this.#onMouseWheel.bind(this));
+        this.canvas.addEventListener('touchstart', this.#onTouchStart.bind(this));
+        this.canvas.addEventListener('touchend', this.#onTouchEnd.bind(this));
+        this.canvas.addEventListener('touchcancel', this.#onTouchEnd.bind(this));
+        this.canvas.addEventListener('touchleave', this.#onTouchEnd.bind(this));
+        this.canvas.addEventListener('touchmove', this.#onTouchMove.bind(this));
     }
 
-    #addPanEventListeners() {
-        this.canvas.addEventListener("mousedown", this.#handleMouseDown.bind(this));
-        this.canvas.addEventListener("mousemove", this.#handleMouseMove.bind(this));
-        this.canvas.addEventListener("mouseup", this.#handleMouseUp.bind(this));
-    }
-
-    #handleMouseDown(evt) {
-        this.drag.start = this.getMouse(evt);
-        this.drag.active = true;
-    }
-
-    #handleMouseMove(evt) {
-        if (this.drag.active) {
-            this.drag.end = this.getMouse(evt);
-            this.drag.offset = scalePoint(subtractPoint(this.drag.end, this.drag.start), this.offsetScale);
+    #onMouseWheel(e) {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+            this.objectMovement.zoom(1);
+        } else {
+            this.objectMovement.zoom(-1);
         }
     }
 
-    #handleMouseUp(evt) {
-        if (this.drag.active) {
-            this.offset = addPoint(this.offset, this.drag.offset);
-            this.drag = {
-                start: new Point(0, 0),
-                end: new Point(0, 0),
-                offset: new Point(0, 0),
-                active: false,
-            };
+    #onTouchStart(e) {
+        if (e.touches.length === 2) {
+            this.pinch = true;
+            this.pinchScale = this.#getPinchScale(e);
         }
     }
-}
 
-function scalePoint(p, scaler) {
-    return new Point(p.x * scaler, p.y * scaler, 0, false);
-}
+    #onTouchEnd() {
+        if (this.pinch) {
+            this.pinch = false;
+        }
+    }
 
+    #onTouchMove(e) {
+        e.preventDefault();
+        if (this.pinch) {
+            let dist = this.#getPinchScale(e);
+            if (dist > this.pinchScale) {
+                this.objectMovement.zoom(1);
+            } else if (dist < this.pinchScale) {
+                this.objectMovement.zoom(-1);
+            }
+            this.pinchScale = dist;
+            return
+        }
+        let x = e.touches[0].clientX
+        let y = e.touches[0].clientY;
+        this.objectMovement.rotateY(x - this.pX);
+        this.objectMovement.rotateX(y - this.pY);
+        this.pX = x;
+        this.pY = y;
 
-function addPoint(p1, p2, round = true) {
-    return new Point(p1.x + p2.x, p1.y + p2.y, round);
-}
+    }
 
-function subtractPoint(p1, p2) {
-    return new Point(p1.x - p2.x, p1.y - p2.y);
+    #onMouseOut() {
+        if (this.mouseDown) {
+            this.mouseDown = false;
+        }
+    }
+
+    #onMouseMove(e) {
+        if (!this.mouseDown) {
+            return;
+        }
+        let x = e.offsetX === undefined ? e.layerX : e.offsetX;
+        let y = e.offsetY === undefined ? e.layerY : e.offsetY;
+        let distanceX = x - this.pX;
+        let distanceY = y - this.pY;
+        if (e.shiftKey) {
+            this.objectMovement.moveHorizontal(distanceX);
+            this.objectMovement.moveVertical(distanceY);
+        } else {
+            this.objectMovement.rotateY(distanceX);
+            this.objectMovement.rotateX(distanceY);
+        }
+        this.pX = x;
+        this.pY = y;
+        return false;
+    }
+
+    #onMouseUp(e) {
+        this.pX = null;
+        this.pY = null;
+        this.mouseDown = false;
+    }
+
+    #onMouseDown(e) {
+        this.pX = e.offsetX === undefined ? e.layerX : e.offsetX;
+        this.pY = e.offsetY === undefined ? e.layerY : e.offsetY;
+        this.mouseDown = true;
+    }
+
+    /**
+     * The getPinchScale function is used to calculate the distance between two touch points on a touch screen.
+     * used in a pinch-to-zoom functionality on mobile devices.
+     * @param e
+     * @returns {number}
+     */
+    #getPinchScale(e) {
+        return Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) + (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
+    }
+
 }
