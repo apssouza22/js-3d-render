@@ -1,3 +1,175 @@
+class ObjectMovement {
+    /** @type {Object3D} */
+    object3D;
+    rotationSpeed = 90; //Smaller = faster. 100 is a good speed
+    zoomSpeed = 0.161; //0-1. 0.2 or 0.3 are good speeds
+    moveSpeed = .5;
+    movementFlag = true;
+    mouseDown = false;
+    constructor(object3D) {
+        this.object3D = object3D;
+        this.addEventListener()   
+    }
+
+    move() {
+        if (this.movementFlag && !this.mouseDown) {
+            console.log("moving ")
+            this.rotateY(-(Date.now() % 0.005));
+            this.rotateX(-(Date.now() % 0.005));
+        }
+    }
+
+    addEventListener() {
+        let pX = null;
+        let pY = null;
+        let mDown = this.mouseDown;
+        let canvas = this.object3D.render.canvas;
+        let thisObJS = this;
+        let pinchScale = 0;
+        let pinch = false;
+        canvas.addEventListener('mousedown', function (e) {}).bind(this);
+        canvas.onmousedown = function (e) {
+            pX = e.offsetX === undefined ? e.layerX : e.offsetX;
+            pY = e.offsetY === undefined ? e.layerY : e.offsetY;
+            mDown = true;
+        };
+
+        canvas.onmouseup = function (e) {
+            pX = null;
+            pY = null;
+            mDown = false;
+        };
+
+        canvas.onmousemove = function (e) {
+            if (!mDown) {
+                return;
+            }
+            let x = e.offsetX === undefined ? e.layerX : e.offsetX;
+            let y = e.offsetY === undefined ? e.layerY : e.offsetY;
+            if (e.shiftKey) {
+                thisObJS.moveHorizontal(x - pX);
+                thisObJS.moveVertical(y - pY);
+            } else {
+                thisObJS.rotateY(x - pX);
+                thisObJS.rotateX(y - pY);
+            }
+            pX = x;
+            pY = y;
+            return false;
+        };
+
+        canvas.onmouseout = function (e) {
+            if (mDown) {
+                mDown = false;
+            }
+        }
+
+        canvas.addEventListener('mousewheel', function (e) {
+            e.preventDefault();
+            if (event.wheelDelta > 0) {
+                thisObJS.zoom(1);
+            } else {
+                thisObJS.zoom(-1);
+            }
+            return false;
+        }, false);
+
+        canvas.addEventListener('touchstart', function (e) {
+            if (e.touches.length === 2) {
+                pinch = true;
+                pinchScale = thisObJS.getPinchScale(e);
+            }
+            return false;
+        }, false);
+
+        canvas.addEventListener('touchend', function (e) {
+            if (pinch) {
+                pinch = false;
+            }
+            return false;
+        }, false);
+
+        canvas.addEventListener('touchcancel', function (e) {
+            if (pinch) {
+                pinch = false;
+            }
+            return false;
+        }, false);
+
+        canvas.addEventListener('touchleave', function (e) {
+            if (pinch) {
+                pinch = false;
+            }
+            return false;
+        }, false);
+
+        canvas.addEventListener('touchmove', function (e) {
+            e.preventDefault();
+            if (pinch) {
+                let dist = thisObJS.getPinchScale(e);
+                if (dist > pinchScale) {
+                    thisObJS.zoom(1);
+                } else if (dist < pinchScale) {
+                    thisObJS.zoom(-1);
+                }
+                pinchScale = dist;
+            } else {
+                let x = e.touches[0].clientX
+                let y = e.touches[0].clientY;
+                thisObJS.rotateY(x - pX);
+                thisObJS.rotateX(y - pY);
+                pX = x;
+                pY = y;
+            }
+            return false;
+        }, false);
+    }
+
+    /**
+     * The getPinchScale function is used to calculate the distance between two touch points on a touch screen.
+     * used in a pinch-to-zoom functionality on mobile devices.
+     * @param e
+     * @returns {number}
+     */
+    getPinchScale(e) {
+        return Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) + (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
+    }
+
+    moveHorizontal(des) {
+        for (var i = 0; i < this.object3D.vertices.length; i++) {
+            this.object3D.vertices[i][0] = (this.object3D.vertices[i][0] * 1) + des * (this.moveSpeed / 50);
+        }
+    }
+
+    moveVertical(des) {
+        for (var i = 0; i < this.object3D.vertices.length; i++) {
+            this.object3D.vertices[i][1] = (this.object3D.vertices[i][1] * 1) + des * (this.moveSpeed / 50);
+        }
+    }
+
+    rotateY(des) {
+        for (var i = 0; i < this.object3D.vertices.length; i++) {
+            var x = this.object3D.vertices[i][0];
+            var z = this.object3D.vertices[i][2];
+            this.object3D.vertices[i][0] = x * Math.cos(des / this.rotationSpeed) - z * Math.sin(des / this.rotationSpeed);
+            this.object3D.vertices[i][2] = z * Math.cos(des / this.rotationSpeed) + x * Math.sin(des / this.rotationSpeed);
+        }
+    }
+
+    rotateX(des) {
+        for (var i = 0; i < this.object3D.vertices.length; i++) {
+            var y = this.object3D.vertices[i][1];
+            var z = this.object3D.vertices[i][2];
+            this.object3D.vertices[i][1] = y * Math.cos(des / this.rotationSpeed) - z * Math.sin(des / this.rotationSpeed);
+            this.object3D.vertices[i][2] = z * Math.cos(des / this.rotationSpeed) + y * Math.sin(des / this.rotationSpeed);
+        }
+    }
+
+    zoom(val) {
+        this.scale = this.scale + val * this.scale * this.zoomSpeed;
+    }
+}
+
 class Object3D {
 
     /**
@@ -21,6 +193,7 @@ class Object3D {
         });
         this.movementFlag = true;
         this.drawer = new ObjectDrawer(this.render, this.colorFaces, this.materials);
+        this.objMovement = new ObjectMovement(this);
     }
 
     /**
@@ -29,23 +202,23 @@ class Object3D {
     draw() {
         const vertices = this.screenProjectionCalc();
         this.drawer.drawObj(vertices)
-        this.move();
+        this.objMovement.move();
     }
 
     /**
      * Move the object
      */
     move() {
-        if (this.movementFlag) {
-            this.rotateY(-(Date.now() % 0.005));
-            this.rotateX(-(Date.now() % 0.005));
-            return
-        }
+        // if (this.movementFlag) {
+        //     this.rotateY(-(Date.now() % 0.005));
+        //     this.rotateX(-(Date.now() % 0.005));
+        //     return
+        // }
         // Multiplies the ratios by Math.PI to convert it to radians
-        const roll = (this.render.mouseControl.drag.offset.x / this.render.canvas.width) * Math.PI;
-        const pitch = (this.render.mouseControl.drag.offset.y / this.render.canvas.height) * Math.PI;
-        this.rotateY(roll);
-        this.rotateX(pitch);
+        // const roll = (this.render.mouseControl.drag.offset.x / this.render.canvas.width) * Math.PI;
+        // const pitch = (this.render.mouseControl.drag.offset.y / this.render.canvas.height) * Math.PI;
+        // this.rotateY(roll);
+        // this.rotateX(pitch);
     }
 
     /**
